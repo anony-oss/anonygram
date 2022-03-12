@@ -10,14 +10,14 @@ UPLOAD_FOLDER = '/Users/vlad/Desktop/Main/Projects/AnonyGram/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__, template_folder='templates')
-app.config['SECRET_KEY'] = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDSJHBgijJKHSDJGfjJHSFIGjkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
+app.config['SECRET_KEY'] = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDdfgdfgkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:4253@localhost/anonygram'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app,  db)
 
-key = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDSJHBgijJKHSDJGfjJHSFIGjkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
+key = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmkfgopwkodmvMK'
 
 messages = []
 names = {}
