@@ -1,7 +1,7 @@
-from flask import Flask, request, redirect, render_template, send_from_directory, jsonify, make_response
+from flask import Flask, request,  send_from_directory, jsonify, make_response
 from cryptocode import encrypt, decrypt
 import os
-from datetime import datetime
+import time
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,17 +10,14 @@ UPLOAD_FOLDER = '/Users/vlad/Desktop/Main/Projects/AnonyGram/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__, template_folder='templates')
-app.config['SECRET_KEY'] = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDdfgdfgkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
+app.config['SECRET_KEY'] = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDSJHBgijJKHSDJGfjJHSFIGjkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:4253@localhost/anonygram'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app,  db)
 
-key = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmkfgopwkodmvMK'
-
-messages = []
-names = {}
+key = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDSJHBgijJKHSDJGfjJHSFIGjkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
 
 user_chat = db.Table('userchats', db.Model.metadata, 
     db.Column('user_id', db.Integer(), db.ForeignKey("users.id")),
@@ -58,6 +55,20 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+class Message(db.Model):
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
+    message = db.Column(db.String, default='')
+    file = db.Column(db.String, nullable=True)
+    chat_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    created_on = db.Column(db.Integer, default=time.time(), nullable=False)
+    
+    __table_args__ = tuple((
+        db.ForeignKeyConstraint(['user_id'], ['users.id']),
+        db.ForeignKeyConstraint(['chat_id'], ['chats.id'])
+    ))
+
 class Chat(db.Model):
     __tablename__ = 'chats'
     id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
@@ -68,41 +79,133 @@ class Chat(db.Model):
     users = db.relationship(
         "User", secondary=user_chat, back_populates="chats"
     )
+    messages = db.relationship("Message", order_by=Message.id)
     
     __table_args__ = tuple((
         db.PrimaryKeyConstraint('id', name='chat_pk')
     ))
 
-class Message(db.Model):
-    __tablename__ = 'messages'
-    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-    message = db.Column(db.String, default='')
-    file = db.Column(db.String, nullable=True)
-    chat_id = db.Column(db.Integer)
-    user_id = db.Column(db.Integer)
-    created_on = db.Column(db.DateTime(), default=datetime.now(), nullable=False)
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    hash = request.form.get('hash')
     
-    __table_args__ = tuple((
-        db.ForeignKeyConstraint(['user_id'], ['users.id']),
-        db.ForeignKeyConstraint(['chat_id'], ['chats.id'])
-    ))
+    result = db.session.execute(db.select(User).where(User.email == email))
+    user = result.scalar()
+    if not user:
+        return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid email.', 'data': {}}), 200))
+    elif (not user.check_password(password) and not hash) or (not user.password == password and hash):
+        return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid password.', 'data': {}}), 200))
+    return (True, user)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/api/set_name/', methods=['POST'])
 def set_name():
-    name = request.get('data')
-    ip = request.remote_addr
-    names[ip] = name
-    return redirect('/')
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    user.name = request.form.get('name')
+    db.session.commit()
+    return make_response(jsonify({'status': 'OK', 'message': 'Name changed.', 'data': {'new_name': user.name}}), 200)
+
+@app.route('/api/create_chat/', methods=['POST'])
+def create_chat():
+    chat_name = request.form.get('chat_name')
+    
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    chat = Chat(name=chat_name)
+    chat.admins.append(user)
+    chat.users.append(user)
+    db.session.add(chat)
+    db.session.commit()
+    return make_response(jsonify({'status': 'OK', 'message': 'Chat created.', 'data': {}}), 200)
+
+@app.route('/api/chat_info/', methods=['POST'])
+def chat_info():
+    chat_id = request.form.get('chat_id')
+    
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == chat_id))
+    chat = result.scalar()
+    
+    ids = []
+    for user in chat.users:
+        ids.append(user.id)
+        
+    admin_ids = []
+    for user in chat.users:
+        admin_ids.append(user.id)
+    
+    return make_response(jsonify({'status': 'OK', 'message': 'Chat info sended.', 'data': {'users': ids, 'admins': admin_ids, 'name': chat.name}}), 200)
+
+@app.route('/api/chat_messages/', methods=['POST'])
+def chat_messages():
+    chat_id = request.form.get('chat_id')
+    
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == chat_id))
+    chat = result.scalar()
+    
+    messages = []
+    for message in chat.messages:
+        messages.append([decrypt(message.message, key), message.file, message.user_id, message.created_on])
+    
+    return make_response(jsonify({'status': 'OK', 'message': 'Chat messages sended.', 'data': {'messages': messages}}), 200)
+
+@app.route('/api/chat_list/', methods=['POST'])
+def chat_list():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    ids = []
+    for chat in user.chats:
+        ids.append(chat.id)
+    
+    return make_response(jsonify({'status': 'OK', 'message': 'Chat list sended.', 'data': ids}), 200)
+
 
 @app.route('/api/send_message/', methods=['POST'])
 def send_message():
-    message = Message(message=encrypt(request.form.get('message'), key))
+    email = request.form.get('email')
+    message_text = request.form.get('message')
+    chat_id = request.form.get('chat_id')
+    
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == chat_id))
+    chat = result.scalar()
+    
+    message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time())
     db.session.add(message)
     db.session.commit()
-    return redirect('/')
+    print(chat.messages)
+    return make_response(jsonify({'status': 'OK', 'message': 'Message sended.', 'data': {'message_text': message_text, 'email': email}}), 200)
 
 @app.route('/api/upload_file/', methods=['POST'])
 def upload_file():
@@ -111,29 +214,23 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         return make_response(jsonify({'status': 'OK', 'message': 'File uploaded.', 'data': {'file_path': os.path.join(app.config['UPLOAD_FOLDER'], file.filename)}}), 200)
     
-@app.route('/api/uploads/<string:filename>', methods=['POST', 'GET'])
+@app.route('/api/uploads/<string:filename>/', methods=['POST', 'GET'])
 def uploaded_files(filename):
     try:
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     except:
         return make_response('File not founded', 404)
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/login/', methods=['POST'])
 def api_login():
-    email = request.form.get('email')
-    password = request.form.get('password')
-    
-    result = db.session.execute(db.select(User).where(User.email == email))
-    user = result.scalar()
-    if user and user.check_password(password):
-        return make_response(jsonify({'status': 'OK', 'message': 'Log in successful.', 'data': {'email': email, 'password_hash': user.password}}), 200)
+    result = login()
+    if result[0]:
+        user = result[1]
+        return make_response(jsonify({'status': 'OK', 'message': 'Log in successful.', 'data': {'email': request.form.get('email'), 'password_hash': user.password}}), 200)
     else:
-        if not user:
-            return make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid username.', 'data': {}}), 200)
-        else:
-            return make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid password.', 'data': {}}), 200)
+        return result[1]
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/register/', methods=['POST'])
 def register():
     username = request.form.get('username')
     email = request.form.get('email')
