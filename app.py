@@ -1,4 +1,5 @@
 from flask import Flask, request,  send_from_directory, jsonify, make_response
+from flask_cors import CORS
 from cryptocode import encrypt, decrypt
 import os
 import time
@@ -10,6 +11,7 @@ UPLOAD_FOLDER = '/Users/vlad/Desktop/Main/Projects/AnonyGram/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__, template_folder='templates')
+CORS(app)
 app.config['SECRET_KEY'] = 'fJjfKDSJfsKIOEOIRUEKODCMKsvmgfdjfkDSJHBgijJKHSDJGfjJHSFIGjkdjhFHIdhjshjkIFEHUiuwiqeoipreopwkodmvMK'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:4253@localhost/anonygram'
