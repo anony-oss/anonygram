@@ -1,3 +1,4 @@
+
 from flask import Flask, request,  send_from_directory, jsonify, make_response
 from flask_cors import CORS
 from cryptocode import encrypt, decrypt
@@ -44,6 +45,7 @@ class User(db.Model):
     admins = db.relationship(
         "Chat", secondary=chat_admin, back_populates="admins"
     )
+    icon = db.Column(db.String(100), nullable=True)
     
     __table_args__ = tuple((
         db.PrimaryKeyConstraint('id', name='user_pk'),
@@ -56,6 +58,9 @@ class User(db.Model):
         
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+    def __repr__(self):
+        return f'<User id={self.id} name={self.name} username={self.username} icon={self.icon}>'
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -70,22 +75,25 @@ class Message(db.Model):
         db.ForeignKeyConstraint(['user_id'], ['users.id']),
         db.ForeignKeyConstraint(['chat_id'], ['chats.id'])
     ))
+    
+    def __repr__(self):
+        return f'<Message id={self.id} message_text={self.message} file={self.file} created_on={self.created_on}>'
 
 class Chat(db.Model):
     __tablename__ = 'chats'
     id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
     name = db.Column(db.String, default='')
-    admins = db.relationship(
-        "User", secondary=chat_admin, back_populates="admins"
-    )
-    users = db.relationship(
-        "User", secondary=user_chat, back_populates="chats"
-    )
+    admins = db.relationship("User", secondary=chat_admin, back_populates="admins")
+    users = db.relationship("User", secondary=user_chat, back_populates="chats")
     messages = db.relationship("Message", order_by=Message.id)
+    icon = db.Column(db.String(100), nullable=True)
     
     __table_args__ = tuple((
         db.PrimaryKeyConstraint('id', name='chat_pk')
     ))
+    
+    def __repr__(self):
+        return f'<Chat id={self.id} name={self.name} icon={self.icon}>'
 
 def login():
     email = request.form.get('email')
@@ -103,6 +111,8 @@ def login():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+
+# User
 @app.route('/api/set_name/', methods=['POST'])
 def set_name():
     result = login()
@@ -115,6 +125,35 @@ def set_name():
     db.session.commit()
     return make_response(jsonify({'status': 'OK', 'message': 'Name changed.', 'data': {'new_name': user.name}}), 200)
 
+# TODO: Add to docs
+@app.route('/api/set_icon/', methods=['POST'])
+def set_icon():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    user.icon = request.form.get('file')
+    db.session.commit()
+    return make_response(jsonify({'status': 'OK', 'message': 'Icon of user changed.', 'data': {'new_icon': user.icon}}), 200)
+
+# TODO: Add to docs
+@app.route('/api/user_info/', methods=['POST'])
+def user_info():
+    result = login()
+    if result[0]:
+        pass
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(User).where(User.id == request.form.get('user_id')))
+    user = result.scalar()
+    
+    return make_response(jsonify({'status': 'OK', 'message': 'User data sended.', 'data': {'name': user.name, 'icon': user.icon, 'id': user.id}}), 200)
+
+
+# Chat
 @app.route('/api/create_chat/', methods=['POST'])
 def create_chat():
     chat_name = request.form.get('chat_name')
@@ -131,6 +170,61 @@ def create_chat():
     db.session.add(chat)
     db.session.commit()
     return make_response(jsonify({'status': 'OK', 'message': 'Chat created.', 'data': {}}), 200)
+
+# TODO: Add to docs
+@app.route('/api/set_chat_icon/', methods=['POST'])
+def set_chat_icon():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == request.form.get('chat_id')))
+    chat = result.scalar()
+    chat.icon = request.form.get('file')
+    db.session.commit()
+    return make_response(jsonify({'status': 'OK', 'message': 'Icon of chat changed.', 'data': {'new_icon': chat.icon}}), 200)
+
+# TODO: Add to docs
+@app.route('/api/add_user_to_chat/', methods=['POST'])
+def add_user_to_chat():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == request.form.get('chat_id')))
+    chat = result.scalar()
+    if user in chat.users:
+        result = db.session.execute(db.select(User).where(User.id == request.form.get('user_id')))
+        user = result.scalar()
+        chat.users.append(user)
+        db.session.commit()
+        return make_response(jsonify({'status': 'OK', 'message': 'User added to chat.', 'data': {'new_user': user.id}}), 200)
+    else:
+        return make_response(jsonify({'status': 'OK', 'message': 'You dont in this chat.', 'data': {}}), 200)
+
+# TODO: Add to docs
+@app.route('/api/add_admin_to_chat/', methods=['POST'])
+def add_admin_to_chat():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    result = db.session.execute(db.select(Chat).where(Chat.id == request.form.get('chat_id')))
+    chat = result.scalar()
+    if user in chat.admins:
+        result = db.session.execute(db.select(User).where(User.id == request.form.get('user_id')))
+        user = result.scalar()
+        chat.admins.append(user)
+        db.session.commit()
+        return make_response(jsonify({'status': 'OK', 'message': 'Admin added to chat.', 'data': {'new_user': user.id}}), 200)
+    else:
+        return make_response(jsonify({'status': 'OK', 'message': 'You dont admin in this chat.', 'data': {}}), 200)
 
 @app.route('/api/chat_info/', methods=['POST'])
 def chat_info():
@@ -153,7 +247,7 @@ def chat_info():
     for user in chat.users:
         admin_ids.append(user.id)
     
-    return make_response(jsonify({'status': 'OK', 'message': 'Chat info sended.', 'data': {'users': ids, 'admins': admin_ids, 'name': chat.name}}), 200)
+    return make_response(jsonify({'status': 'OK', 'message': 'Chat info sended.', 'data': {'users': ids, 'admins': admin_ids, 'name': chat.name, 'icon': chat.icon}}), 200)
 
 @app.route('/api/chat_messages/', methods=['POST'])
 def chat_messages():
@@ -188,11 +282,13 @@ def chat_list():
     return make_response(jsonify({'status': 'OK', 'message': 'Chat list sended.', 'data': ids}), 200)
 
 
+# Messages
 @app.route('/api/send_message/', methods=['POST'])
 def send_message():
     email = request.form.get('email')
     message_text = request.form.get('message')
     chat_id = request.form.get('chat_id')
+    file = request.form.get('file')
     
     result = login()
     if result[0]:
@@ -202,13 +298,16 @@ def send_message():
     
     result = db.session.execute(db.select(Chat).where(Chat.id == chat_id))
     chat = result.scalar()
-    
-    message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time())
+    if file is None:
+        message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time())
+    else:
+        message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time(), file=file)
     db.session.add(message)
     db.session.commit()
-    print(chat.messages)
     return make_response(jsonify({'status': 'OK', 'message': 'Message sended.', 'data': {'message_text': message_text, 'email': email}}), 200)
 
+
+# Uploads
 @app.route('/api/upload_file/', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -223,12 +322,14 @@ def uploaded_files(filename):
     except:
         return make_response('File not founded', 404)
 
+
+# Registration and login
 @app.route('/api/login/', methods=['POST'])
 def api_login():
     result = login()
     if result[0]:
         user = result[1]
-        return make_response(jsonify({'status': 'OK', 'message': 'Log in successful.', 'data': {'email': request.form.get('email'), 'password_hash': user.password}}), 200)
+        return make_response(jsonify({'status': 'OK', 'message': 'Log in successful.', 'data': {'email': request.form.get('email'), 'password_hash': user.password, 'id': user.id}}), 200)
     else:
         return result[1]
 
@@ -244,7 +345,7 @@ def register():
         db.session.commit()
     except Exception as e:
         return make_response(jsonify({'status': 'NOTOK', 'message': 'Registration failed. Username or email already in use', 'data': {}}), 200)
-    return make_response(jsonify({'status': 'OK', 'message': 'Registration successful.', 'data': {'username': username, 'email': email}}), 200)
+    return make_response(jsonify({'status': 'OK', 'message': 'Registration successful.', 'data': {'username': username, 'email': email, 'password_hash': user.password, 'id': user.id}}), 200)
 
 
 if __name__ == '__main__':
