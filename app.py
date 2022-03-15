@@ -1,4 +1,3 @@
-
 from flask import Flask, request,  send_from_directory, jsonify, make_response
 from flask_cors import CORS
 from cryptocode import encrypt, decrypt
