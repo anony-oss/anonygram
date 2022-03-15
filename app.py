@@ -349,4 +349,8 @@ def register():
 
 if __name__ == '__main__':
     db.create_all()
+<<<<<<< HEAD
     app.run()
+=======
+    app.run()
+>>>>>>> 4ce6cc4c70cc52e6fa2d33c368d94c1e11789c4e
