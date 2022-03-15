@@ -1,2 +1,2 @@
-start cmd.exe /k 2.cmd
+start cmd.exe /k start.cmd
 ngrok tcp 5000
