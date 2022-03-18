@@ -1,6 +1,6 @@
-from app import db
 import time
 from werkzeug.security import generate_password_hash, check_password_hash
+from .extensions import db
 
 user_chat = db.Table('userchats', db.Model.metadata, 
     db.Column('user_id', db.Integer(), db.ForeignKey("users.id")),

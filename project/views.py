@@ -1,9 +1,10 @@
-from flask import request,  send_from_directory, jsonify, make_response
-from cryptocode import encrypt, decrypt
 import os
 import time
-from app import app, db
-from models import User, Chat, Message
+from flask import request,  send_from_directory, jsonify, make_response
+from cryptocode import encrypt, decrypt
+from .app import app
+from .extensions import db
+from .models import User, Chat, Message
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -22,11 +23,8 @@ def login():
         return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid password.', 'data': {}}), 200))
     return (True, user)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-
-# User
+# User 
 @app.route('/api/set_name/', methods=['POST'])
 def set_name():
     result = login()
@@ -222,7 +220,7 @@ def send_message():
 @app.route('/api/upload_file/', methods=['POST'])
 def upload_file():
     file = request.files['file']
-    if file and allowed_file(file.filename):
+    if file and ('.' in file.filename and file.filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS):
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         return make_response(jsonify({'status': 'OK', 'message': 'File uploaded.', 'data': {'file_path': os.path.join(app.config['UPLOAD_FOLDER'], file.filename)}}), 200)
     
