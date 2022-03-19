@@ -19,13 +19,14 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=True)
     email = db.Column(db.String(100), nullable=False)    
     password = db.Column(db.String(200), nullable=True)
+    icon = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.Text(), nullable=True)
     chats = db.relationship(
         "Chat", secondary=user_chat, back_populates="users"
     )
     admins = db.relationship(
         "Chat", secondary=chat_admin, back_populates="admins"
     )
-    icon = db.Column(db.String(100), nullable=True)
     
     __table_args__ = tuple((
         db.PrimaryKeyConstraint('id', name='user_pk'),

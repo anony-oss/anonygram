@@ -38,6 +38,19 @@ def set_name():
     return make_response(jsonify({'status': 'OK', 'message': 'Name changed.', 'data': {'new_name': user.name}}), 200)
 
 # TODO: Add to docs
+@app.route('/api/set_description/', methods=['POST'])
+def set_description():
+    result = login()
+    if result[0]:
+        user = result[1]
+    else:
+        return result[1]
+    
+    user.description = request.form.get('description')
+    db.session.commit()
+    return make_response(jsonify({'status': 'OK', 'message': 'Description changed.', 'data': {'new_description': user.description}}), 200)
+
+# TODO: Add to docs
 @app.route('/api/set_icon/', methods=['POST'])
 def set_icon():
     result = login()
@@ -61,7 +74,7 @@ def user_info():
     result = db.session.execute(db.select(User).where(User.id == request.form.get('user_id')))
     user = result.scalar()
     
-    return make_response(jsonify({'status': 'OK', 'message': 'User data sended.', 'data': {'name': user.name, 'icon': user.icon, 'id': user.id}}), 200)
+    return make_response(jsonify({'status': 'OK', 'message': 'User data sended.', 'data': {'name': user.name, 'icon': user.icon, 'id': user.id, 'description': user.description}}), 200)
 
 
 # Chat
