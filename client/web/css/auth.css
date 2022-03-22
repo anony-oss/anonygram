@@ -1,0 +1,33 @@
+/* auth popup */
+.auth-popup{
+    position: absolute;
+    top: 3em;
+    margin-right: 2em;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#auth-popup-content{
+    background-color: #27272C;
+    border-radius: 0.5em;
+    box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    padding: 2em;
+}
+.auth-popup #auth-popup-content .btn-group label{
+    background-color: #121214;
+    box-shadow: none;
+}
+.auth-popup #auth-popup-content .input-group input{
+    background-color: #121214;
+    border-color: black;
+    color: white;
+}
+.auth-popup #auth-popup-content label{
+    color: white;
+}
+#message-popup1 .message-popup1-content, #message-popup2 .message-popup2-content{
+    padding: 1em;
+    border-radius: 0.5em;
+    margin-bottom: 1em;
+}

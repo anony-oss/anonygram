@@ -1,0 +1,112 @@
+/* left menu */
+.left-menu{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+.left-menu_content{
+    height: 100%;
+    background-color: #1a1a1d;
+    box-shadow: 1px 1px 10px black;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+.left-menu img{
+    width: 3em;
+    height: 3em;
+    background-size: cover;
+    border-radius: 2em;
+    margin-left: 0.5em;
+}
+.left-menu .left-menu_content #user-nickname{
+    color: white;
+    font-weight: 600;
+    margin-top: 0.6em;
+    margin-left: 0.2em;
+}
+.left-menu ul{
+    list-style-type: none;
+    padding: 0;
+    padding-top: 1em;
+}
+.left-menu ul li{
+    width: 100%;
+    padding: 0.5em;
+    padding-left: 1em;
+    display: flex;
+    align-items: center;
+}
+.left-menu ul li:hover{
+    background-color: #131314;
+}
+.left-menu ul li i{
+    color: white;
+    font-size: 1.4em;
+    margin-right: 0.6em;
+}
+.left-menu ul li p{
+    color: white;
+    font-weight: bold;
+    height: 0.6em;
+}
+/* search popup */
+.search-popup{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+.search-popup_content{
+    position: absolute;
+    height: 28em;
+    margin-left: 4.5em;
+    top: 5em;
+    border-radius: 0.5em;
+    background-color: #131314;
+    box-shadow: 1px 1px 10px black;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+.search-popup_content ul{
+    list-style-type: none;
+    padding: 0;
+    margin-top: 1em;
+    height: 100%;
+    overflow-y: scroll;
+}
+.search-popup_content ul li{
+    padding: 0.5em;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.5em;
+}
+.search-popup_content ul li:hover{
+    background-color: #0d0d0e54;
+}
+.search-popup_content ul li img{
+    width: 2.5em;
+    height: 2.5em;
+    background-image: cover;
+    border-radius: 2em;
+    margin-right: 1.2em;
+}
+.search-popup_content ul li p{
+    color: white;
+    font-weight: 600;
+    height: 1.3em;
+    margin: 0;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .search-popup{
+        display: flex;
+        justify-content: center;
+    }
+    .search-popup_content{
+        margin-left: 0;
+    }
+}

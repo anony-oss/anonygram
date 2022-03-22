@@ -1,0 +1,122 @@
+body{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    background-color: #131314;
+    overflow-y: hidden;
+}
+/* top menu */
+.top-menu{
+    width: 100%;
+    height: 4em;
+    background-color: #27272C;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    padding-left: 1em;
+    box-shadow: 1px 1px 10px black;
+    position: fixed;
+}
+.top-menu .search{
+    margin-left: 1em; 
+    display: flex;
+}
+.top-menu .search input{
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: black;
+    color: white;
+}
+.top-menu .search .input-group-text{
+    background-color: black;
+    border-color: black;
+}
+.top-menu .search i{
+    color: white;
+}
+.top-menu_left{
+    padding: 0;
+    display: flex;
+    height: 2.5em;
+}
+.top-menu_right{
+    padding: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-left: 1em;
+    height: 2.5em;
+}
+.top-menu_right #chat-panel_info{
+    margin-left: 1em; 
+    display: flex; 
+    flex-direction: column;
+}
+.top-menu_right #chat-type{
+    color: white;
+    font-size: 1.2em;
+}
+.top-menu_right #chat-panel_info #chat-name{
+    color: white;
+    font-weight: bold;
+    margin: 0;
+    font-size: 14px;
+}
+.top-menu_right #chat-amount_users{
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    font-size: 14px;
+}
+.vr{
+    width: 0.3em;
+    height: 100%;
+    background-color: black;
+    margin-right: 1em;
+}
+@media screen and (max-width: 768px) {
+    .top-menu .search{
+        display: none;
+    }
+    .top-menu_right #chat-panel_info{
+        margin-right: 0.5em;
+    }
+    .vr{
+        display: none;
+    }
+    .top-menu_right{
+        padding-left: 0;
+    }
+}
+/* buttons */
+.btn-dark{
+    background-color: black;
+}
+.unselectable {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently
+                                    not supported by any browser */
+}
+/* scroll */
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: black;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+  border-radius: 10px;
+  background-color: transparent;
+}

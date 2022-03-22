@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чебурнет</title>
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="shortcut icon" href="img/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/popup.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+<div class="top-menu">
+    <div class="top-menu_left col-lg-4 col-xl-3">
+        <button type="button" class="btn btn-dark" onclick="$('.left-menu').fadeIn()"><i class="bi bi-list"></i></button>
+        <div class="search input-group">
+            <input type="text" class="form-control" placeholder="Поиск..." aria-label="Поиск..." aria-describedby="basic-addon2">
+            <span class="input-group-text" id="basic-addon2" onclick="$('.search-popup').slideDown()"><i class="bi bi-search"></i></span>
+        </div>
+    </div>
+    <div class="top-menu_right" style="display: none;">
+        <div class="vr"></div>
+        <div class="col-10 col-sm-8 col-md-8 col-lg-8 col-xl-6" style="display: flex; align-items: center;">
+            <i class="bi bi-people-fill" id="chat-type"></i>
+            <div id="chat-panel_info">
+                <p id="chat-name">Название чата</p>
+                <p id="chat-amount_users">Кол-во участников</p>
+            </div>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-dark"><i class="bi bi-three-dots-vertical" style="color: white;"></i></button>
+        </div>
+    </div>
+</div>
+<div class="container home">
+    <ul class="content unselectable">
+    </ul>
+</div>
+
+<!-- CHAT -->
+<div class="container chat" style="display: none;">
+    <ul></ul>
+    <div class="chat-input_block">
+        <div class="container">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Написать сообщение..." aria-describedby="basic-addon2" id="message-input">
+                <button type="button" class="btn btn-dark"><i class="bi bi-send-fill" id="send_message"></i></button> <!-- Отправка сообщения -->
+                <button type="button" class="btn btn-dark"><i class="bi bi-image-fill"></i></button> <!-- Вызов окна для загрузки изображений -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SEARCH POPUP -->
+<div class="search-popup" style="display: none;">
+    <div class="search-popup_content col-11 col-sm-10 col-md-6 col-lg-4 col-xl-3">
+        <div style="width: 100%; display: flex; align-items: center; justify-content: flex-end;">
+            <div style="width: 100%;"><h4 style="height: 1em; color: white;">Результаты поиска</h4></div>
+            <button type="button" class="btn btn-dark" onclick="$('.search-popup').fadeOut()"><i class="bi bi-x-lg" style="color: white; font-size: 1.2em;"></i></button>
+        </div>
+        <ul>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+            <li onclick="window.location.href='#'">
+                <img src="img/standart-avatar.jpg" alt="">
+                <p>Никнейм</p>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- LEFT MENU -->
+<div class="left-menu" style="display: none;">
+    <div class="left-menu_content col-12 col-sm-4 col-md-4 col-lg-4 col-xl-3">
+        <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 1em;">
+            <button type="button" class="btn btn-dark" onclick="$('.left-menu').fadeOut()"><i class="bi bi-x-lg" style="color: white; font-size: 1.2em;"></i></button>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%; padding: 1em;">
+            <div style="width: 100%; display: flex; align-items: center;">
+                <img src="img/standart-avatar.jpg" alt="">
+                <div style="width: 100%; display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn btn-dark" onclick="account_exit()"><i class="bi bi-box-arrow-right" style="color: white; font-size: 1.2em;"></i></button>
+                </div>
+            </div>
+            <h4 id="user-nickname">Nickname</h4>
+        </div>
+        <ul class="unselectable">
+            <li onclick="window.location.href='index.html'"><i class="bi bi-person-lines-fill"></i><p>Контакты</p></li>
+            <li onclick=""><i class="bi bi-people-fill"></i><p>Создать группу</p></li>
+            <li onclick=""><i class="bi bi-gear-fill"></i><p>Настройки</p></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="js/functions.js"></script>
+<script src="js/ajax.js"></script>
+<script>check_auth();</script>
+<script>
+    let chat_id = window.location.search;
+    if(chat_id.includes('?chat')){
+        $('.home').hide();
+        $('.chat, .top-menu_right').show();
+        chat_id = chat_id.split('?chat=');
+        chat_id = chat_id[1];
+        message_show(2);
+        timer_chat(chat_id);
+        $('#send_message').on('click', function(){
+            send_message(chat_id);
+        });
+    }else{
+        chats_list();
+    }
+</script>
+</html>

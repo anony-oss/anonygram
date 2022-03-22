@@ -5,21 +5,20 @@ from cryptocode import encrypt, decrypt
 from .app import app
 from .extensions import db
 from .models import User, Chat, Message
+from .config import ALLOWED_EXTENSIONS
 
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-
-key = app.config['SECRET_KEY']
+KEY = app.config['SECRET_KEY']
 
 def login():
     email = request.form.get('email')
     password = request.form.get('password')
-    hash = request.form.get('hash')
-    
+    if email is None or password is None:
+        return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid post data.', 'data': {}}), 200))
     result = db.session.execute(db.select(User).where(User.email == email))
     user = result.scalar()
     if not user:
         return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid email.', 'data': {}}), 200))
-    elif (not user.check_password(password) and not hash) or (not user.password == password and hash):
+    elif not user.check_password(password) and not user.password == password:
         return (False, make_response(jsonify({'status': 'NOTOK', 'message': 'Log in failed. Invalid password.', 'data': {}}), 200))
     return (True, user)
 
@@ -186,7 +185,7 @@ def chat_messages():
     
     messages = []
     for message in chat.messages:
-        messages.append([decrypt(message.message, key), message.file, message.user_id, message.created_on])
+        messages.append([decrypt(message.message, KEY), message.file, message.user_id, message.created_on])
     
     return make_response(jsonify({'status': 'OK', 'message': 'Chat messages sended.', 'data': {'messages': messages}}), 200)
 
@@ -221,9 +220,9 @@ def send_message():
     result = db.session.execute(db.select(Chat).where(Chat.id == chat_id))
     chat = result.scalar()
     if file is None:
-        message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time())
+        message = Message(message=encrypt(message_text, KEY), user_id=user.id, chat_id=chat_id, created_on=time.time())
     else:
-        message = Message(message=encrypt(message_text, key), user_id=user.id, chat_id=chat_id, created_on=time.time(), file=file)
+        message = Message(message=encrypt(message_text, KEY), user_id=user.id, chat_id=chat_id, created_on=time.time(), file=file)
     db.session.add(message)
     db.session.commit()
     return make_response(jsonify({'status': 'OK', 'message': 'Message sended.', 'data': {'message_text': message_text, 'email': email}}), 200)
@@ -260,11 +259,13 @@ def register():
     username = request.form.get('username')
     email = request.form.get('email')
     password = request.form.get('password')
+    if username is None or email is None or password is None:
+        return make_response(jsonify({'status': 'NOTOK', 'message': 'Registration failed. Invalid post data.', 'data': {}}), 200)
     user = User(username=username, email=email)
     user.set_password(password)
     db.session.add(user)
     try:
         db.session.commit()
     except Exception as e:
-        return make_response(jsonify({'status': 'NOTOK', 'message': 'Registration failed. Username or email already in use', 'data': {}}), 200)
+        return make_response(jsonify({'status': 'NOTOK', 'message': 'Registration failed. Username or email already in use.', 'data': {}}), 200)
     return make_response(jsonify({'status': 'OK', 'message': 'Registration successful.', 'data': {'username': username, 'email': email, 'password_hash': user.password, 'id': user.id}}), 200)

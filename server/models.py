@@ -35,6 +35,8 @@ class User(db.Model):
     ))
     
     def set_password(self, password):
+        print(password)
+        print(type(password))
         self.password = generate_password_hash(password)
         
     def check_password(self, password):
