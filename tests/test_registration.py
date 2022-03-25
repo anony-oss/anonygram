@@ -13,7 +13,7 @@ fake.add_provider(misc)
 
 class TestRegistration():
     def setup_method(self):
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join('/Users/vlad/Desktop/Main/Projects/AnonyGram/', 'test.db')
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
         app.config['SECRET_KEY'] = 'testing'
         app.config['TESTING'] = True
     
