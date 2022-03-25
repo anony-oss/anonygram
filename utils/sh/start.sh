@@ -1,1 +1,2 @@
-python3 run.py
+cd ../
+python -m anonygram.run
