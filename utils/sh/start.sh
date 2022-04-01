@@ -1,2 +1,1 @@
-cd ../
-python -m anonygram.run
+flask run

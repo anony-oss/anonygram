@@ -1,6 +1,6 @@
 import os
 import time
-from flask import request,  send_from_directory, jsonify, make_response
+from flask import request, send_from_directory, jsonify, make_response
 from cryptocode import encrypt, decrypt
 from .app import app
 from .extensions import db
@@ -54,7 +54,7 @@ def set_description():
 def set_icon():
     result = login()
     if result[0]:
-        user: User = result[1]
+        user = result[1]
     else:
         return result[1]
     
