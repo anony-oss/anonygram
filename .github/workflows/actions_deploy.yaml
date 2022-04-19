@@ -4,26 +4,10 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: [ubuntu-latest]
-    timeout-minutes: 9999
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
-    - name: Download Curl
-      run: sudo apt install curl
-    - name: Download Ngrok
-      run: curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.tgz --output ngrok.tgz
-    - name: Unzip Ngrok
-      run: tar -xvzf ngrok.tgz
-    - name: Connect your Ngrok account
-      run: ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Start Ngrok
-      run: ./ngrok tcp 500 &
-    - name: Show url
-      run: curl -s 'https://api.github.com/users/lambda' | python3 -c "import sys, json; print(json.load(sys.stdin)['name'])"
-    - name: Install requirements
-      run: pip install -r requirements.txt
-    - name: Start server
-      run: ./utils/sh/start.sh
+      - uses: actions/checkout@master
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "anonygram-oss"
+          heroku_email: "pavlyuchkov11@bk.ru"
